@@ -90,7 +90,15 @@ namespace C3Tools
         private int DrumsFills;
         private List<int> DrumsDensity;
         private bool HasDiscoFlip;
-        
+        private int DrumsXBRE;
+        private int DrumsHBRE;
+        private int DrumsMBRE;
+        private int DrumsEBRE;
+        private int DrumsXPostBRE;
+        private int DrumsHPostBRE;
+        private int DrumsMPostBRE;
+        private int DrumsEPostBRE;
+
         private int BassX;
         private int BassXO;
         private int BassXB;
@@ -125,6 +133,14 @@ namespace C3Tools
         private int BassHOPOon;
         private int BassLHAnim;
         private List<int> BassDensity;
+        private int BassXBRE;
+        private int BassHBRE;
+        private int BassMBRE;
+        private int BassEBRE;
+        private int BassXPostBRE;
+        private int BassHPostBRE;
+        private int BassMPostBRE;
+        private int BassEPostBRE;
 
         private int GuitarX;
         private int GuitarXO;
@@ -153,13 +169,21 @@ namespace C3Tools
         private int GuitarTrills;
         private int GuitarTremolos;
         private int GuitarSolo;
-        private double GuitarSoloLength;
-        private double GuitarSoloNPS;
+        private double SoloLength;
+        private double SoloNPS;
         private int GuitarOD;
         private int GuitarHOPOoff;
         private int GuitarHOPOon;
         private int GuitarLHAnim;
         private List<int> GuitarDensity;
+        private int GuitarXBRE;
+        private int GuitarHBRE;
+        private int GuitarMBRE;
+        private int GuitarEBRE;
+        private int GuitarXPostBRE;
+        private int GuitarHPostBRE;
+        private int GuitarMPostBRE;
+        private int GuitarEPostBRE;
 
         private int KeysX;
         private int KeysXO;
@@ -191,7 +215,15 @@ namespace C3Tools
         private double KeysSoloNPS;
         private int KeysOD;
         private List<int> KeysDensity;
-        
+        private int KeysXBRE;
+        private int KeysHBRE;
+        private int KeysMBRE;
+        private int KeysEBRE;
+        private int KeysXPostBRE;
+        private int KeysHPostBRE;
+        private int KeysMPostBRE;
+        private int KeysEPostBRE;
+
         private int ProKeysX;
         private int ProKeysXBlack;
         private int ProKeysXTrills;
@@ -208,7 +240,15 @@ namespace C3Tools
         private double ProKeysSoloLength;
         private double ProKeysSoloNPS;
         private List<int> ProKeysDensity;
-        
+        private int ProKeysXBRE;
+        private int ProKeysHBRE;
+        private int ProKeysMBRE;
+        private int ProKeysEBRE;
+        private int ProKeysXPostBRE;
+        private int ProKeysHPostBRE;
+        private int ProKeysMPostBRE;
+        private int ProKeysEPostBRE;
+
         private int KeysAnimRH;
         private int KeysAnimLH;
         
@@ -565,6 +605,22 @@ namespace C3Tools
             var DrumsNPS = 0;
             var DrumsLength = 0;
 
+            List<long> x_notes = new List<long>();
+            List<long> h_notes = new List<long>();
+            List<long> m_notes = new List<long>();
+            List<long> e_notes = new List<long>();
+
+            long bre_start = -1;
+            long bre_end = -1;
+
+            int x_post_bre_notes = 0;
+
+            int h_post_bre_notes = 0;
+
+            int m_post_bre_notes = 0;
+
+            int e_post_bre_notes = 0;
+
             for (var z = 0; z < track.Count(); z++)
             {
                 var notes = track[z];
@@ -599,6 +655,8 @@ namespace C3Tools
                                 break;
                             case 120:
                                 DrumsFills++;
+                                bre_start = note.AbsoluteTime;
+                                bre_end = note.OffEvent.AbsoluteTime;
                                 break;
                             case 116:
                                 DrumsOD++;
@@ -625,56 +683,62 @@ namespace C3Tools
                                     DrumsSoloLength = NoteLengthInSecs(DrumsSoloNote.AbsoluteTime, DrumsSoloNote.NoteLength);
                                 }
                                 break;
-                            case 100:
-                                if (GreenTom == null)
+                            case int n when (n >= 96 && n <= 100):
+                                x_notes.Add(note.AbsoluteTime);
+                                switch (n)
                                 {
-                                    DrumsXGreenCymbal++;
+                                    case 100:
+                                        if (GreenTom == null)
+                                        {
+                                            DrumsXGreenCymbal++;
+                                        }
+                                        else if (note.AbsoluteTime >= GreenTom.AbsoluteTime &&
+                                                 note.AbsoluteTime + note.NoteLength <= GreenTom.AbsoluteTime + GreenTom.NoteLength)
+                                        {
+                                            DrumsXGreenTom++;
+                                        }
+                                        else
+                                        {
+                                            DrumsXGreenCymbal++;
+                                        }
+                                        break;
+                                    case 99:
+                                        if (BlueTom == null)
+                                        {
+                                            DrumsXBlueCymbal++;
+                                        }
+                                        else if (note.AbsoluteTime >= BlueTom.AbsoluteTime &&
+                                                 note.AbsoluteTime + note.NoteLength <= BlueTom.AbsoluteTime + BlueTom.NoteLength)
+                                        {
+                                            DrumsXBlueTom++;
+                                        }
+                                        else
+                                        {
+                                            DrumsXBlueCymbal++;
+                                        }
+                                        break;
+                                    case 98:
+                                        if (YellowTom == null)
+                                        {
+                                            DrumsXYellowCymbal++;
+                                        }
+                                        else if (note.AbsoluteTime >= YellowTom.AbsoluteTime &&
+                                                 note.AbsoluteTime + note.NoteLength <= YellowTom.AbsoluteTime + YellowTom.NoteLength)
+                                        {
+                                            DrumsXYellowTom++;
+                                        }
+                                        else
+                                        {
+                                            DrumsXYellowCymbal++;
+                                        }
+                                        break;
+                                    case 97:
+                                        DrumsXSnare++;
+                                        break;
+                                    case 96:
+                                        DrumsXKick++;
+                                        break;
                                 }
-                                else if (note.AbsoluteTime >= GreenTom.AbsoluteTime &&
-                                         note.AbsoluteTime + note.NoteLength <= GreenTom.AbsoluteTime + GreenTom.NoteLength)
-                                {
-                                    DrumsXGreenTom++;
-                                }
-                                else
-                                {
-                                    DrumsXGreenCymbal++;
-                                }
-                                break;
-                            case 99:
-                                if (BlueTom == null)
-                                {
-                                    DrumsXBlueCymbal++;
-                                }
-                                else if (note.AbsoluteTime >= BlueTom.AbsoluteTime &&
-                                         note.AbsoluteTime + note.NoteLength <= BlueTom.AbsoluteTime + BlueTom.NoteLength)
-                                {
-                                    DrumsXBlueTom++;
-                                }
-                                else
-                                {
-                                    DrumsXBlueCymbal++;
-                                }
-                                break;
-                            case 98:
-                                if (YellowTom == null)
-                                {
-                                    DrumsXYellowCymbal++;
-                                }
-                                else if (note.AbsoluteTime >= YellowTom.AbsoluteTime &&
-                                         note.AbsoluteTime + note.NoteLength <= YellowTom.AbsoluteTime + YellowTom.NoteLength)
-                                {
-                                    DrumsXYellowTom++;
-                                }
-                                else
-                                {
-                                    DrumsXYellowCymbal++;
-                                }
-                                break;
-                            case 97:
-                                DrumsXSnare++;
-                                break;
-                            case 96:
-                                DrumsXKick++;
                                 break;
                             case 88:
                                 if (GreenTom == null)
@@ -871,11 +935,66 @@ namespace C3Tools
             TotalPlayableNotes += DrumsX + DrumsH + DrumsM + DrumsE;
         }
 
-        private void AnalyzeBass(IEnumerable<MidiEvent> track)
+        private void Analyze5Lane(IEnumerable<MidiEvent> track, string instrument)
         {
-            NoteOnEvent BassSoloNote = null;
-            var BassNPS = 0;
-            var BassLength = 0;
+            NoteOnEvent SoloNote = null;
+            var InstNPS = 0;
+            var InstLength = 0;
+
+            List<long> x_notes = new List<long>();
+            List<long> h_notes = new List<long>();
+            List<long> m_notes = new List<long>();
+            List<long> e_notes = new List<long>();
+
+            List<int> InstDensity = new List<int>();
+
+            long bre_start = -1;
+            long bre_end = -1;
+
+            int x_bre_notes = 0;
+            int x_post_bre_notes = 0;
+            int h_bre_notes = 0;
+            int h_post_bre_notes = 0;
+            int m_bre_notes = 0;
+            int m_post_bre_notes = 0;
+            int e_bre_notes = 0;
+            int e_post_bre_notes = 0;
+
+            int trills = 0;
+            int tremolos = 0;
+            int overdrive = 0;
+            int solos = 0;
+
+            int hopo_off = 0;
+            int hopo_on = 0;
+
+            int expert_o = 0;
+            int expert_b = 0;
+            int expert_y = 0;
+            int expert_r = 0;
+            int expert_g = 0;
+
+            int hard_o = 0;
+            int hard_b = 0;
+            int hard_y = 0;
+            int hard_r = 0;
+            int hard_g = 0;
+
+            int medium_o = 0;
+            int medium_b = 0;
+            int medium_y = 0;
+            int medium_r = 0;
+            int medium_g = 0;
+
+            int easy_o = 0;
+            int easy_b = 0;
+            int easy_y = 0;
+            int easy_r = 0;
+            int easy_g = 0;
+
+            int lh_anim = 0;
+
+
             foreach (var notes in track)
             {
                 if (!HasEndEvent && notes.AbsoluteTime > LengthLong)
@@ -885,15 +1004,14 @@ namespace C3Tools
                 if (notes.CommandCode != MidiCommandCode.NoteOn) continue;
                 var note = (NoteOnEvent)notes;
                 if (note.Velocity <= 0) continue;
-
                 TotalMIDINotes++;
                 switch (note.NoteNumber)
                 {
                     case 127:
-                        BassTrills++;
+                        trills++;
                         break;
                     case 126:
-                        BassTremolos++;
+                        tremolos++;
                         break;
                     case 124:
                     case 123:
@@ -901,92 +1019,158 @@ namespace C3Tools
                     case 121:
                     case 120:
                         HasBRE = true;
+                        if (bre_start == -1)
+                        {
+                            bre_start = note.AbsoluteTime;
+                            bre_end = note.OffEvent.AbsoluteTime;
+                        }
                         break;
                     case 116:
-                        BassOD++;
+                        overdrive++;
                         break;
                     case 103:
-                        BassSolo++;
-                        BassSoloNote = note;
-                        BassNPS = 0;
-                        if (BassSoloNote.NoteLength > BassLength)
+                        solos++;
+                        SoloNote = note;
+                        InstNPS = 0;
+                        if (SoloNote.NoteLength > InstLength)
                         {
-                            BassLength = BassSoloNote.NoteLength;
-                            BassSoloLength = NoteLengthInSecs(BassSoloNote.AbsoluteTime, BassSoloNote.NoteLength);
+                            InstLength = SoloNote.NoteLength;
+                            SoloLength = NoteLengthInSecs(SoloNote.AbsoluteTime, SoloNote.NoteLength);
                         }
                         break;
                     case 102:
                     case 90:
-                        BassHOPOoff++;
+                        hopo_off++;
                         break;
                     case 101:
                     case 89:
-                        BassHOPOon++;
+                        hopo_on++;
                         break;
-                    case 100:
-                        BassXO++;
+                    case int n when (n >= 96 && n <= 100):
+                        long x_last = x_notes.LastOrDefault();
+                        if (x_notes.IndexOf(note.AbsoluteTime) == -1)
+                        {
+                            long curr_time = note.AbsoluteTime;
+                            long x_snap_check = curr_time - x_last;
+                            if (x_snap_check < 15) continue;
+                            x_notes.Add(curr_time);
+                        }
+                        switch (n)
+                        {
+                            case 100:
+                                expert_o++;
+                                break;
+
+                            case 99:
+                                expert_b++;
+                                break;
+
+                            case 98:
+                                expert_y++;
+                                break;
+                            case 97:
+                                expert_r++;
+                                break;
+                            case 96:
+                                expert_g++;
+                                break;
+
+                        }
                         break;
-                    case 99:
-                        BassXB++;
+                    case int n when (n >= 84 && n <= 88):
+                        long h_last = h_notes.LastOrDefault();
+                        if (h_notes.IndexOf(note.AbsoluteTime) == -1)
+                        {
+                            long curr_time = note.AbsoluteTime;
+                            long h_snap_check = curr_time - h_last;
+                            if (h_snap_check < 15) continue;
+                            h_notes.Add(curr_time);
+                        }
+                        switch (n)
+                        {
+                            case 88:
+                                hard_o++;
+                                break;
+
+                            case 87:
+                                hard_b++;
+                                break;
+
+                            case 86:
+                                hard_y++;
+                                break;
+                            case 85:
+                                hard_r++;
+                                break;
+                            case 84:
+                                hard_g++;
+                                break;
+                        }
                         break;
-                    case 98:
-                        BassXY++;
+                    case int n when (n >= 72 && n <= 76):
+                        long m_last = m_notes.LastOrDefault();
+                        if (m_notes.IndexOf(note.AbsoluteTime) == -1)
+                        {
+                            long curr_time = note.AbsoluteTime;
+                            long m_snap_check = curr_time - m_last;
+                            if (m_snap_check < 15) continue;
+                            m_notes.Add(curr_time);
+                        }
+                        switch (n)
+                        {
+                            case 76:
+                                medium_o++;
+                                break;
+
+                            case 75:
+                                medium_b++;
+                                break;
+
+                            case 74:
+                                medium_y++;
+                                break;
+                            case 73:
+                                medium_r++;
+                                break;
+                            case 72:
+                                medium_g++;
+                                break;
+                        }
                         break;
-                    case 97:
-                        BassXR++;
-                        break;
-                    case 96:
-                        BassXG++;
-                        break;
-                    case 88:
-                        BassHO++;
-                        break;
-                    case 87:
-                        BassHB++;
-                        break;
-                    case 86:
-                        BassHY++;
-                        break;
-                    case 85:
-                        BassHR++;
-                        break;
-                    case 84:
-                        BassHG++;
-                        break;
-                    case 76:
-                        BassMO++;
-                        break;
-                    case 75:
-                        BassMB++;
-                        break;
-                    case 74:
-                        BassMY++;
-                        break;
-                    case 73:
-                        BassMR++;
-                        break;
-                    case 72:
-                        BassMG++;
-                        break;
-                    case 64:
-                        BassEO++;
-                        break;
-                    case 63:
-                        BassEB++;
-                        break;
-                    case 62:
-                        BassEY++;
-                        break;
-                    case 61:
-                        BassER++;
-                        break;
-                    case 60:
-                        BassEG++;
+                    case int n when (n >= 60 && n <= 64):
+                        long e_last = e_notes.LastOrDefault();
+                        if (e_notes.IndexOf(note.AbsoluteTime) == -1)
+                        {
+                            long curr_time = note.AbsoluteTime;
+                            long e_snap_check = curr_time - e_last;
+                            if (e_snap_check < 15) continue;
+                            e_notes.Add(curr_time);
+                        }
+                        switch (n)
+                        {
+                            case 64:
+                                medium_o++;
+                                break;
+
+                            case 63:
+                                medium_b++;
+                                break;
+
+                            case 62:
+                                medium_y++;
+                                break;
+                            case 61:
+                                medium_r++;
+                                break;
+                            case 60:
+                                medium_g++;
+                                break;
+                        }
                         break;
                     default:
                         if (note.NoteNumber <= 59 && note.NoteNumber >= 40)
                         {
-                            BassLHAnim++;
+                            lh_anim++;
                         }
                         break;
                 }
@@ -994,309 +1178,262 @@ namespace C3Tools
                 if (calculateDensity.Checked)
                 {
                     var measure = GetMeasure(note.AbsoluteTime);
-                    if (!BassDensity.Contains(measure))
+                    if (!InstDensity.Contains(measure))
                     {
-                        BassDensity.Add(measure);
+                        InstDensity.Add(measure);
                     }
                 }
-                if (BassSoloNote == null) continue;
-                if (note.AbsoluteTime < BassSoloNote.AbsoluteTime || note.AbsoluteTime > BassSoloNote.AbsoluteTime + BassSoloNote.NoteLength)
+                if (SoloNote == null) continue;
+                if (note.AbsoluteTime < SoloNote.AbsoluteTime || note.AbsoluteTime > SoloNote.AbsoluteTime + SoloNote.NoteLength)
                 {
-                    if (BassNPS / NoteLengthInSecs(BassSoloNote.AbsoluteTime, BassSoloNote.NoteLength) > BassSoloNPS)
+                    if (InstNPS / NoteLengthInSecs(SoloNote.AbsoluteTime, SoloNote.NoteLength) > SoloNPS)
                     {
-                        BassSoloNPS = Math.Round(BassNPS / NoteLengthInSecs(BassSoloNote.AbsoluteTime, BassSoloNote.NoteLength), 1);
+                        SoloNPS = Math.Round(InstNPS / NoteLengthInSecs(SoloNote.AbsoluteTime, SoloNote.NoteLength), 1);
                     }
                 }
                 else
                 {
-                    BassNPS++;
+                    InstNPS++;
                 }
             }
-            BassX = BassXO + BassXB + BassXY + BassXR + BassXG;
-            BassH = BassHO + BassHB + BassHY + BassHR + BassHG;
-            BassM = BassMO + BassMB + BassMY + BassMR + BassMG;
-            BassE = BassEO + BassEB + BassEY + BassER + BassEG;
-            TotalPlayableNotes += BassX + BassH + BassM + BassE;
-        }
-
-        private void AnalyzeGuitar(IEnumerable<MidiEvent> track)
-        {
-            NoteOnEvent GuitarSoloNote = null;
-            var GuitarNPS = 0;
-            var GuitarLength = 0;
-            foreach (var notes in track)
+            if (bre_start != -1)
             {
-                if (!HasEndEvent && notes.AbsoluteTime > LengthLong)
-                {
-                    LengthLong = notes.AbsoluteTime;
-                }
-                if (notes.CommandCode != MidiCommandCode.NoteOn) continue;
-                var note = (NoteOnEvent)notes;
-                if (note.Velocity <= 0) continue;
+                List<long> x_notes_new = new List<long>();
+                List<long> h_notes_new = new List<long>();
+                List<long> m_notes_new = new List<long>();
+                List<long> e_notes_new = new List<long>();
 
-                TotalMIDINotes++;
-                switch (note.NoteNumber)
+                // Filter out the BRE notes
+
+                HashSet<long> counted = new HashSet<long>();
+                foreach (long x in x_notes.Concat(h_notes).Concat(m_notes).Concat(e_notes))
                 {
-                    case 127:
-                        GuitarTrills++;
-                        break;
-                    case 126:
-                        GuitarTremolos++;
-                        break;
-                    case 124:
-                    case 123:
-                    case 122:
-                    case 121:
-                    case 120:
-                        HasBRE = true;
-                        break;
-                    case 116:
-                        GuitarOD++;
-                        break;
-                    case 103:
-                        GuitarSolo++;
-                        GuitarSoloNote = note;
-                        GuitarNPS = 0;
-                        if (GuitarSoloNote.NoteLength > GuitarLength)
-                        {
-                            GuitarLength = GuitarSoloNote.NoteLength;
-                            GuitarSoloLength = NoteLengthInSecs(GuitarSoloNote.AbsoluteTime, GuitarSoloNote.NoteLength);
-                        }
-                        break;
-                    case 102:
-                    case 90:
-                        GuitarHOPOoff++;
-                        break;
-                    case 101:
-                    case 89:
-                        GuitarHOPOon++;
-                        break;
-                    case 100:
-                        GuitarXO++;
-                        break;
-                    case 99:
-                        GuitarXB++;
-                        break;
-                    case 98:
-                        GuitarXY++;
-                        break;
-                    case 97:
-                        GuitarXR++;
-                        break;
-                    case 96:
-                        GuitarXG++;
-                        break;
-                    case 88:
-                        GuitarHO++;
-                        break;
-                    case 87:
-                        GuitarHB++;
-                        break;
-                    case 86:
-                        GuitarHY++;
-                        break;
-                    case 85:
-                        GuitarHR++;
-                        break;
-                    case 84:
-                        GuitarHG++;
-                        break;
-                    case 76:
-                        GuitarMO++;
-                        break;
-                    case 75:
-                        GuitarMB++;
-                        break;
-                    case 74:
-                        GuitarMY++;
-                        break;
-                    case 73:
-                        GuitarMR++;
-                        break;
-                    case 72:
-                        GuitarMG++;
-                        break;
-                    case 64:
-                        GuitarEO++;
-                        break;
-                    case 63:
-                        GuitarEB++;
-                        break;
-                    case 62:
-                        GuitarEY++;
-                        break;
-                    case 61:
-                        GuitarER++;
-                        break;
-                    case 60:
-                        GuitarEG++;
-                        break;
-                    default:
-                        if (note.NoteNumber <= 59 && note.NoteNumber >= 40)
-                        {
-                            GuitarLHAnim++;
-                        }
-                        break;
-                }
-                if (note.NoteNumber > 100 || note.NoteNumber < 96) continue;
-                if (calculateDensity.Checked)
-                {
-                    var measure = GetMeasure(note.AbsoluteTime);
-                    if (!GuitarDensity.Contains(measure))
+                    if (counted.Contains(x)) continue;
+                    counted.Add(x);
+
+                    if (x < bre_start)
                     {
-                        GuitarDensity.Add(measure);
+                        if (x_notes.Contains(x))
+                        {
+                            x_notes_new.Add(x);
+                        }
+                        if (h_notes.Contains(x))
+                        {
+                            h_notes_new.Add(x);
+                        }
+                        if (m_notes.Contains(x))
+                        {
+                            m_notes_new.Add(x);
+                        }
+                        if (e_notes.Contains(x))
+                        {
+                            e_notes_new.Add(x);
+                        }
+                    }
+                    else if (x >= bre_start && x < bre_end)
+                    {
+                        if (x_notes.Contains(x))
+                        {
+                            x_bre_notes++;
+                        }
+                        if (h_notes.Contains(x))
+                        {
+                            h_bre_notes++;
+                        }
+                        if (m_notes.Contains(x))
+                        {
+                            m_bre_notes++;
+                        }
+                        if (e_notes.Contains(x))
+                        {
+                            e_bre_notes++;
+                        }
+                    }
+                    else
+                    {
+                        if (x_notes.Contains(x))
+                        {
+                            x_post_bre_notes++;
+                        }
+                        if (h_notes.Contains(x))
+                        {
+                            h_post_bre_notes++;
+                        }
+                        if (m_notes.Contains(x))
+                        {
+                            m_post_bre_notes++;
+                        }
+                        if (e_notes.Contains(x))
+                        {
+                            e_post_bre_notes++;
+                        }
                     }
                 }
-                if (GuitarSoloNote == null) continue;
-                if (note.AbsoluteTime < GuitarSoloNote.AbsoluteTime || note.AbsoluteTime > GuitarSoloNote.AbsoluteTime + GuitarSoloNote.NoteLength)
-                {
-                    if (GuitarNPS / NoteLengthInSecs(GuitarSoloNote.AbsoluteTime, GuitarSoloNote.NoteLength) > GuitarSoloNPS)
-                    {
-                        GuitarSoloNPS = Math.Round(GuitarNPS / NoteLengthInSecs(GuitarSoloNote.AbsoluteTime, GuitarSoloNote.NoteLength), 1);
-                    }
-                }
-                else
-                {
-                    GuitarNPS++;
-                }
+                x_notes = x_notes_new;
+                h_notes = h_notes_new;
+                m_notes = m_notes_new;
+                e_notes = e_notes_new;
             }
-            GuitarX = GuitarXO + GuitarXB + GuitarXY + GuitarXR + GuitarXG;
-            GuitarH = GuitarHO + GuitarHB + GuitarHY + GuitarHR + GuitarHG;
-            GuitarM = GuitarMO + GuitarMB + GuitarMY + GuitarMR + GuitarMG;
-            GuitarE = GuitarEO + GuitarEB + GuitarEY + GuitarER + GuitarEG;
-            TotalPlayableNotes += GuitarX + GuitarH + GuitarM + GuitarE;
-        }
-
-        private void AnalyzeKeys(IEnumerable<MidiEvent> track)
-        {
-            NoteOnEvent KeysSoloNote = null;
-            var KeysNPS = 0;
-            var KeysLength = 0;
-
-            foreach (var notes in track)
+            switch (instrument)
             {
-                if (!HasEndEvent && notes.AbsoluteTime > LengthLong)
-                {
-                    LengthLong = notes.AbsoluteTime;
-                }
-                if (notes.CommandCode != MidiCommandCode.NoteOn) continue;
-                var note = (NoteOnEvent)notes;
-                if (note.Velocity <= 0) continue;
+                case "guitar":
+                    GuitarTrills = trills;
+                    GuitarTremolos = tremolos;
+                    GuitarOD = overdrive;
+                    GuitarSolo = solos;
+                    GuitarHOPOoff = hopo_off;
+                    GuitarHOPOon = hopo_on;
 
-                TotalMIDINotes++;
-                switch (note.NoteNumber)
-                {
-                    case 127:
-                        KeysTrills++;
-                        break;
-                    case 124:
-                    case 123:
-                    case 122:
-                    case 121:
-                    case 120:
-                        HasBRE = true;
-                        break;
-                    case 116:
-                        KeysOD++;
-                        break;
-                    case 103:
-                        KeysSolo++;
-                        KeysSoloNote = note;
-                        KeysNPS = 0;
-                        if (KeysSoloNote.NoteLength > KeysLength)
-                        {
-                            KeysLength = KeysSoloNote.NoteLength;
-                            KeysSoloLength = NoteLengthInSecs(KeysSoloNote.AbsoluteTime, KeysSoloNote.NoteLength);
-                        }
-                        break;
-                    case 100:
-                        KeysXO++;
-                        break;
-                    case 99:
-                        KeysXB++;
-                        break;
-                    case 98:
-                        KeysXY++;
-                        break;
-                    case 97:
-                        KeysXR++;
-                        break;
-                    case 96:
-                        KeysXG++;
-                        break;
-                    case 88:
-                        KeysHO++;
-                        break;
-                    case 87:
-                        KeysHB++;
-                        break;
-                    case 86:
-                        KeysHY++;
-                        break;
-                    case 85:
-                        KeysHR++;
-                        break;
-                    case 84:
-                        KeysHG++;
-                        break;
-                    case 76:
-                        KeysMO++;
-                        break;
-                    case 75:
-                        KeysMB++;
-                        break;
-                    case 74:
-                        KeysMY++;
-                        break;
-                    case 73:
-                        KeysMR++;
-                        break;
-                    case 72:
-                        KeysMG++;
-                        break;
-                    case 64:
-                        KeysEO++;
-                        break;
-                    case 63:
-                        KeysEB++;
-                        break;
-                    case 62:
-                        KeysEY++;
-                        break;
-                    case 61:
-                        KeysER++;
-                        break;
-                    case 60:
-                        KeysEG++;
-                        break;
-                }
-                if (note.NoteNumber > 100 || note.NoteNumber < 96) continue;
-                if (calculateDensity.Checked)
-                {
-                    var measure = GetMeasure(note.AbsoluteTime);
-                    if (!KeysDensity.Contains(measure))
-                    {
-                        KeysDensity.Add(measure);
-                    }
-                }
-                if (KeysSoloNote == null) continue;
-                if (note.AbsoluteTime < KeysSoloNote.AbsoluteTime || note.AbsoluteTime > KeysSoloNote.AbsoluteTime + KeysSoloNote.NoteLength)
-                {
-                    if (KeysNPS / NoteLengthInSecs(KeysSoloNote.AbsoluteTime, KeysSoloNote.NoteLength) > KeysSoloNPS)
-                    {
-                        KeysSoloNPS = Math.Round(KeysNPS / NoteLengthInSecs(KeysSoloNote.AbsoluteTime, KeysSoloNote.NoteLength), 1);
-                    }
-                }
-                else
-                {
-                    KeysNPS++;
-                }
+                    GuitarXO = expert_o;
+                    GuitarXB = expert_b;
+                    GuitarXY = expert_y;
+                    GuitarXR = expert_r;
+                    GuitarXG = expert_g;
+
+                    GuitarHO = hard_o;
+                    GuitarHB = hard_b;
+                    GuitarHY = hard_y;
+                    GuitarHR = hard_r;
+                    GuitarHG = hard_g;
+
+                    GuitarMO = medium_o;
+                    GuitarMB = medium_b;
+                    GuitarMY = medium_y;
+                    GuitarMR = medium_r;
+                    GuitarMG = medium_g;
+
+                    GuitarEO = easy_o;
+                    GuitarEB = easy_b;
+                    GuitarEY = easy_y;
+                    GuitarER = easy_r;
+                    GuitarEG = easy_g;
+
+                    GuitarLHAnim = lh_anim;
+
+                    GuitarDensity = InstDensity;
+
+                    GuitarX = x_notes.Count;
+                    GuitarH = h_notes.Count;
+                    GuitarM = m_notes.Count;
+                    GuitarE = e_notes.Count;
+
+                    GuitarXBRE = x_bre_notes;
+                    GuitarHBRE = h_bre_notes;
+                    GuitarMBRE = m_bre_notes;
+                    GuitarEBRE = e_bre_notes;
+
+                    GuitarXPostBRE = x_post_bre_notes;
+                    GuitarHPostBRE = h_post_bre_notes;
+                    GuitarMPostBRE = m_post_bre_notes;
+                    GuitarEPostBRE = e_post_bre_notes;
+
+
+                    TotalPlayableNotes += GuitarX + GuitarH + GuitarM + GuitarE;
+                    break;
+                case "bass":
+                    BassTrills = trills;
+                    BassTremolos = tremolos;
+                    BassOD = overdrive;
+                    BassSolo = solos;
+                    BassHOPOoff = hopo_off;
+                    BassHOPOon = hopo_on;
+
+                    BassXO = expert_o;
+                    BassXB = expert_b;
+                    BassXY = expert_y;
+                    BassXR = expert_r;
+                    BassXG = expert_g;
+
+                    BassHO = hard_o;
+                    BassHB = hard_b;
+                    BassHY = hard_y;
+                    BassHR = hard_r;
+                    BassHG = hard_g;
+
+                    BassMO = medium_o;
+                    BassMB = medium_b;
+                    BassMY = medium_y;
+                    BassMR = medium_r;
+                    BassMG = medium_g;
+
+                    BassEO = easy_o;
+                    BassEB = easy_b;
+                    BassEY = easy_y;
+                    BassER = easy_r;
+                    BassEG = easy_g;
+
+                    BassLHAnim = lh_anim;
+
+                    BassDensity = InstDensity;
+
+                    BassX = x_notes.Count;
+                    BassH = h_notes.Count;
+                    BassM = m_notes.Count;
+                    BassE = e_notes.Count;
+
+                    BassXBRE = x_bre_notes;
+                    BassHBRE = h_bre_notes;
+                    BassMBRE = m_bre_notes;
+                    BassEBRE = e_bre_notes;
+
+                    BassXPostBRE = x_post_bre_notes;
+                    BassHPostBRE = h_post_bre_notes;
+                    BassMPostBRE = m_post_bre_notes;
+                    BassEPostBRE = e_post_bre_notes;
+
+
+                    TotalPlayableNotes += BassX + BassH + BassM + BassE;
+                    break;
+                case "keys":
+                    KeysTrills = trills;
+                    KeysOD = overdrive;
+                    KeysSolo = solos;
+
+                    KeysXO = expert_o;
+                    KeysXB = expert_b;
+                    KeysXY = expert_y;
+                    KeysXR = expert_r;
+                    KeysXG = expert_g;
+
+                    KeysHO = hard_o;
+                    KeysHB = hard_b;
+                    KeysHY = hard_y;
+                    KeysHR = hard_r;
+                    KeysHG = hard_g;
+
+                    KeysMO = medium_o;
+                    KeysMB = medium_b;
+                    KeysMY = medium_y;
+                    KeysMR = medium_r;
+                    KeysMG = medium_g;
+
+                    KeysEO = easy_o;
+                    KeysEB = easy_b;
+                    KeysEY = easy_y;
+                    KeysER = easy_r;
+                    KeysEG = easy_g;
+
+                    KeysDensity = InstDensity;
+
+                    KeysX = x_notes.Count;
+                    KeysH = h_notes.Count;
+                    KeysM = m_notes.Count;
+                    KeysE = e_notes.Count;
+
+                    KeysXBRE = x_bre_notes;
+                    KeysHBRE = h_bre_notes;
+                    KeysMBRE = m_bre_notes;
+                    KeysEBRE = e_bre_notes;
+
+                    KeysXPostBRE = x_post_bre_notes;
+                    KeysHPostBRE = h_post_bre_notes;
+                    KeysMPostBRE = m_post_bre_notes;
+                    KeysEPostBRE = e_post_bre_notes;
+
+                    TotalPlayableNotes += KeysX + KeysH + KeysM + KeysE;
+                    break;
             }
-            KeysX = KeysXO + KeysXB + KeysXY + KeysXR + KeysXG;
-            KeysH = KeysHO + KeysHB + KeysHY + KeysHR + KeysHG;
-            KeysM = KeysMO + KeysMB + KeysMY + KeysMR + KeysMG;
-            KeysE = KeysEO + KeysEB + KeysEY + KeysER + KeysEG;
-            TotalPlayableNotes += KeysX + KeysH + KeysM + KeysE;
+            
         }
 
         private static string GetCleanMIDILyric(string raw_event)
@@ -1733,15 +1870,15 @@ namespace C3Tools
                     }
                     else if (trackname.Contains("BASS") && !trackname.Contains("REAL") && !trackname.Contains("COOP") && chkBass.Checked)
                     {
-                        AnalyzeBass(MIDIFile.Events[i]);
+                        Analyze5Lane(MIDIFile.Events[i], "bass");
                     }
                     else if (trackname.Contains("GUITAR") && !trackname.Contains("REAL") && !trackname.Contains("COOP") && chkGuitar.Checked)
                     {
-                        AnalyzeGuitar(MIDIFile.Events[i]);
+                        Analyze5Lane(MIDIFile.Events[i], "guitar");
                     }
                     else if (trackname.Contains("KEYS") && !trackname.Contains("REAL") && !trackname.Contains("ANIM") && chkKeys.Checked)
                     {
-                        AnalyzeKeys(MIDIFile.Events[i]);
+                        Analyze5Lane(MIDIFile.Events[i], "keys");
                     }
                     else if (trackname.Contains("KEYS_X") && chkProKeys.Checked)
                     {
@@ -2177,6 +2314,14 @@ namespace C3Tools
                 if (BassX > 0)
                 {
                     Log(" - Expert Notes", NoteCount(BassX));
+                    if (HasBRE)
+                    {
+                        if (BassXBRE > 0)
+                        {
+                            Log("  - Notes under BRE", BassXBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", BassXPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(BassXO));
@@ -2186,6 +2331,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(BassXG));
                     }
                     Log(" - Hard Notes", NoteCount(BassH));
+                    if (HasBRE)
+                    {
+                        if (BassHBRE > 0)
+                        {
+                            Log("  - Notes under BRE", BassHBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", BassHPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(BassHO));
@@ -2195,6 +2348,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(BassHG));
                     }
                     Log(" - Medium Notes", NoteCount(BassM));
+                    if (HasBRE)
+                    {
+                        if (BassMBRE > 0)
+                        {
+                            Log("  - Notes under BRE", BassMBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", BassMPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(BassMO));
@@ -2204,6 +2365,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(BassMG));
                     }
                     Log(" - Easy Notes", NoteCount(BassE));
+                    if (HasBRE)
+                    {
+                        if (BassEBRE > 0)
+                        {
+                            Log("  - Notes under BRE", BassEBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", BassEPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(BassEO));
@@ -2243,6 +2412,14 @@ namespace C3Tools
                 if (GuitarX > 0)
                 {
                     Log(" - Expert Notes", NoteCount(GuitarX));
+                    if (HasBRE)
+                    {
+                        if (GuitarXBRE > 0)
+                        {
+                            Log("  - Notes under BRE", GuitarXBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", GuitarXPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(GuitarXO));
@@ -2252,6 +2429,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(GuitarXG));
                     }
                     Log(" - Hard Notes", NoteCount(GuitarH));
+                    if (HasBRE)
+                    {
+                        if (GuitarHBRE > 0)
+                        {
+                            Log("  - Notes under BRE", GuitarHBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", GuitarHPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(GuitarHO));
@@ -2261,6 +2446,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(GuitarHG));
                     }
                     Log(" - Medium Notes", NoteCount(GuitarM));
+                    if (HasBRE)
+                    {
+                        if (GuitarMBRE > 0)
+                        {
+                            Log("  - Notes under BRE", GuitarMBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", GuitarMPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(GuitarMO));
@@ -2270,6 +2463,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(GuitarMG));
                     }
                     Log(" - Easy Notes", NoteCount(GuitarE));
+                    if (HasBRE)
+                    {
+                        if (GuitarEBRE > 0)
+                        {
+                            Log("  - Notes under BRE", GuitarEBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", GuitarEPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(GuitarEO));
@@ -2292,8 +2493,8 @@ namespace C3Tools
                     Log(" - Solos", GuitarSolo.ToString(CultureInfo.InvariantCulture));
                     if (GuitarSolo > 0)
                     {
-                        Log(" - Longest Solo", GuitarSoloLength + " seconds");
-                        Log(" - Toughest Solo", GuitarSoloNPS + " NPS");
+                        Log(" - Longest Solo", SoloLength + " seconds");
+                        Log(" - Toughest Solo", SoloNPS + " NPS");
                     }
                     Log("Has Guitar Left Hand Animations?", (GuitarLHAnim > 0) ? "Yes" : "No");
                     if (GuitarLHAnim > 0)
@@ -2398,6 +2599,14 @@ namespace C3Tools
                 if (KeysX > 0)
                 {
                     Log(" - Expert Notes", NoteCount(KeysX));
+                    if (HasBRE)
+                    {
+                        if (KeysXBRE > 0)
+                        {
+                            Log("  - Notes under BRE", KeysXBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", KeysXPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(KeysXO));
@@ -2407,6 +2616,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(KeysXG));
                     }
                     Log(" - Hard Notes", NoteCount(KeysH));
+                    if (HasBRE)
+                    {
+                        if (KeysHBRE > 0)
+                        {
+                            Log("  - Notes under BRE", KeysHBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", KeysHPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(KeysHO));
@@ -2416,6 +2633,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(KeysHG));
                     }
                     Log(" - Medium Notes", NoteCount(KeysM));
+                    if (HasBRE)
+                    {
+                        if (KeysMBRE > 0)
+                        {
+                            Log("  - Notes under BRE", KeysMBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", KeysMPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(KeysMO));
@@ -2425,6 +2650,14 @@ namespace C3Tools
                         Log("    - Greens", NoteCount(KeysMG));
                     }
                     Log(" - Easy Notes", NoteCount(KeysE));
+                    if (HasBRE)
+                    {
+                        if (KeysEBRE > 0)
+                        {
+                            Log("  - Notes under BRE", KeysEBRE.ToString());
+                        }
+                        Log("  - Notes after BRE", KeysEPostBRE.ToString());
+                    }
                     if (breakDownInstruments.Checked)
                     {
                         Log("    - Oranges", NoteCount(KeysEO));
@@ -2907,8 +3140,8 @@ namespace C3Tools
             GuitarHOPOon = 0;
             GuitarLHAnim = 0;
             GuitarSolo = 0;
-            GuitarSoloLength = 0.0;
-            GuitarSoloNPS = 0.0;
+            SoloLength = 0.0;
+            SoloNPS = 0.0;
             GuitarDensity = new List<int>();
             KeysX = 0;
             KeysXO = 0;
